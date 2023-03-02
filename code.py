@@ -8,9 +8,11 @@ from digitalio import DigitalInOut, Direction, Pull
 import supervisor
 import sys
 
+import config_pin     # the module determines the pulse input pins to use
+from config import initialize, config
+initialize(len(config_pin.PINS))
+
 import lora
-from config import config
-import config_pin
 
 # The number of milliseconds to wait for bouncing to stop
 BOUNCE_MS = 20

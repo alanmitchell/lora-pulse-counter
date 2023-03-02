@@ -11,15 +11,11 @@ class Configuration:
     # transmission of an average power value.
     SECS_BETWEEN_XMIT_DEFAULT = 600
 
-    def __init__(self):
-        # for the few settings that are changeable via downlink, check non-volatile 
-        # memory to see what value to use.  NVM bytes will be 255 if they have never
-        # been written before.
+    def __init__(self, pin_count):
 
         # read values from non-volatile storage. Need the "<" in the format 
         # string so no padding is included in the bytes.
-        # FIX ME: Need to know how many counts there are before reading from NVM.
-        vals = struct.unpack('<HII', nvm[0:10])
+        vals = struct.unpack('<H' + 'I' * pin_count, nvm[0:2 + pin_count * 4])
         self._secs_between_xmit = vals[0]
         self._starting_counts = vals[1:]
 
@@ -65,8 +61,12 @@ class Configuration:
         self._starting_counts = counts
         self.save_to_nvm()
 
-# Instantiate a Config object that will be imported by modules that need access
-# to the configuration information.  So, those modules will execute:
-#    from config import config
-# to get this object.
-config = Configuration()
+# this is the configuration object that will be accessed by other modules. 
+# the initialize() routine below creates the object once.
+config = None
+
+def initialize(pin_count):
+    """pin_count is the number of pulse input pins
+    """
+    global config
+    config = Configuration(pin_count)
