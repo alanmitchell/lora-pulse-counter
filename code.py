@@ -39,9 +39,6 @@ recv_buf = ''
 # initial values of the pulse pins
 pin_value = [pin.value for pin in pin_pulse]
 
-# ultimately will hold newly-read values for pins
-pin_new_value = [None] * len(pin_value)
-
 # array to hold cumulative pulse counts
 counts = config.starting_counts
 
@@ -72,7 +69,8 @@ while True:
                 if (supervisor.ticks_ms() - pin_transition_time[ix]) & _TICKS_MAX >= BOUNCE_MS:
                     if current_pin_value != pin_value[ix] and current_pin_value == False:
                         # a falling transition occurred
-                        counts[ix] += 1
+                        counts[ix] = (counts[ix] + 1) % COUNT_ROLLOVER
+                        
                     pin_value[ix] = current_pin_value
                     pin_state[ix] =  STATE_LOOKING
 
@@ -101,15 +99,14 @@ while True:
         ticks_since_xmit = (cur_ticks - last_xmit) & _TICKS_MAX
         if ticks_since_xmit >= config.secs_between_xmit * 1000:
             last_xmit = cur_ticks
-            t_hot, t_cold, _ = current_temps()
-            t_hot_tenths = int(t_hot * 10.0 + 0.5)
-            t_cold_tenths = int(t_cold * 10.0 + 0.5)
-            # Note: below does not deal with negative temperatures F, which should not occur
-            msg = f'05{heat_count:06X}{flow_count:06X}{t_hot_tenths:04X}{t_cold_tenths:04X}'
+            content = ''
+            for ct in counts:
+                content += f'{ct:06X}'
+            msg = '06' + content
             print(msg)
             lora.send_data(msg, e5_uart)
             # store heat and flow counts in case reboot
-            config.starting_counts = (heat_count, flow_count)
+            config.starting_counts = counts
 
     except KeyboardInterrupt:
         sys.exit()
