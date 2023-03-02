@@ -1,4 +1,4 @@
-"""CircuitPython code to implement a dual channel pulse counter and send the data 
+"""CircuitPython code to implement a multi-channel pulse counter and send the data 
 via LoRaWAN.  Cumulative counts are tracked and transmitted.
 """
 import time
@@ -10,6 +10,7 @@ import sys
 
 import lora
 from config import config
+import config_pin
 
 # The number of milliseconds to wait for bouncing to stop
 BOUNCE_MS = 20
@@ -28,7 +29,7 @@ lora.send_reboot(e5_uart)
 time.sleep(7.0)    # need to wait for send to continue.
 
 # Set up the pins that accept dry switch pulses
-pin_pulse = [DigitalInOut((board.A0)), DigitalInOut((board.A1))]
+pin_pulse = [DigitalInOut(pin_name) for pin_name in config_pin.PINS]
 for pin in pin_pulse:
     pin.direction = Direction.INPUT
     pin.pull = Pull.UP
