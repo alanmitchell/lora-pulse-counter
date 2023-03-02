@@ -1,0 +1,27 @@
+#!/bin/bash
+# Need to have Circuit Python mpy cross compiler in base project directory,
+# executable and named mpy-cross.
+# Download from: https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/
+
+# continue script even if error occurs
+set +e
+
+# make mpy files
+for FILE in lib/*.py; do ./mpy-cross-7.3.3 $FILE; done; 
+
+# copy the default calibrate file if it does not exist on the board
+if ! [ -f /media/alan/CIRCUITPY/calibrate.py ]; then
+    cp calibrate_default.py /media/alan/CIRCUITPY/calibrate.py
+fi
+
+# found that it was more reliable to delete the code.py file first before
+# copying a new one.
+if [ -f /media/alan/CIRCUITPY/code.py ]; then
+    rm /media/alan/CIRCUITPY/code.py
+fi
+sleep 1
+
+# copy the code.py file last so that all other files are in place before starting the
+# main script (code.py)
+cp lib/*.mpy /media/alan/CIRCUITPY/lib/
+cp code.py /media/alan/CIRCUITPY/code.py
