@@ -1,5 +1,5 @@
-"""Holds configuration information and also stores/retrieves some settings
-from non-volatile memory.
+"""Has Configuration class; some info is stored in
+non-volatile memory.
 """
 from microcontroller import nvm        # non-volatile memory
 import struct
@@ -60,13 +60,3 @@ class Configuration:
     def starting_counts(self, counts):
         self._starting_counts = counts
         self.save_to_nvm()
-
-# this is the configuration object that will be accessed by other modules. 
-# the initialize() routine below creates the object once.
-config = None
-
-def initialize(pin_count):
-    """pin_count is the number of pulse input pins
-    """
-    global config
-    config = Configuration(pin_count)

@@ -1,7 +1,5 @@
 # Functions releated to LoRa communication
 
-from config import config
-
 def send_reboot(e5_uart):
     """Send a message indicating that a reboot occurred."""
     print('reboot')     # debug print
@@ -13,9 +11,10 @@ def send_data(msg_data, e5_uart):
     cmd = bytes(f'AT+MSGHEX="{msg_data}"\n', 'utf-8')
     e5_uart.write(cmd)
 
-def check_for_downlink(lin, e5_uart):
+def check_for_downlink(lin, e5_uart, config):
     """'lin' is a line received from the E5 module.  Check to see if it is
-    a Downlink message, and if so, process the request."""
+    a Downlink message, and if so, process the request. config is the
+    configuration object for the application."""
     if 'PORT: 1; RX: "' in lin:
         # this is a Downlink message. Pull out the Hex string data.  First two
         # characters indicate the request type.

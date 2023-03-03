@@ -10,8 +10,10 @@ import supervisor
 import sys
 
 import config_pin     # the module determines the pulse input pins to use
-from config import initialize, config
-initialize(len(config_pin.PINS))
+
+# make configuration object based on pin count
+from config import Configuration
+config = Configuration(len(config_pin.PINS))
 
 import lora
 
@@ -90,7 +92,7 @@ while True:
             if ch in (b'\n', b'\r'):
                 if len(recv_buf):
                     print(recv_buf)
-                    lora.check_for_downlink(recv_buf, e5_uart)
+                    lora.check_for_downlink(recv_buf, e5_uart, config)
                     recv_buf = ''
             else:
                 try:
