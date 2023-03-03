@@ -1,5 +1,6 @@
 """CircuitPython code to implement a multi-channel pulse counter and send the data 
-via LoRaWAN.  Cumulative counts are tracked and transmitted.
+via LoRaWAN.  Cumulative counts are tracked and transmitted.  Create a config_pin.py
+file indicating which pins are pulse inputs (config_pin.example.py is a template).
 """
 import time
 import board
