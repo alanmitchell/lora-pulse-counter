@@ -76,6 +76,7 @@ while True:
                     if current_pin_value != pin_value[ix] and current_pin_value == False:
                         # a falling transition occurred
                         counts[ix] = (counts[ix] + 1) % COUNT_ROLLOVER
+                        print(ix, counts[ix])
                         
                     pin_value[ix] = current_pin_value
                     pin_state[ix] =  STATE_LOOKING
@@ -119,5 +120,4 @@ while True:
     
     except:
         print('Unknown error.')
-        raise
         time.sleep(1)

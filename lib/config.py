@@ -15,16 +15,24 @@ class Configuration:
 
         # read values from non-volatile storage. Need the "<" in the format 
         # string so no padding is included in the bytes.
-        vals = struct.unpack('<H' + 'I' * pin_count, nvm[0:2 + pin_count * 4])
+        try:
+            vals = struct.unpack('<H' + 'I' * pin_count, nvm[0:2 + pin_count * 4])
+        except:
+            # Initial values in nvm overflow small int for counts
+            vals = [0] * (pin_count + 1)
+            vals[0] = Configuration.SECS_BETWEEN_XMIT_DEFAULT
         self._secs_between_xmit = vals[0]
-        self._starting_counts = vals[1:]
+        self._starting_counts = list(vals[1:])
 
         # set to defaults, if values haven't been initialized
         if self._secs_between_xmit > 24 * 3600:
-            self._secs_between_xmit = SECS_BETWEEN_XMIT_DEFAULT
+            self._secs_between_xmit = Configuration.SECS_BETWEEN_XMIT_DEFAULT
         for ix, val in enumerate(self._starting_counts):
             if val > 2**24 - 1:
                 self._start_flow_count[ix] = 0
+
+        # code above may have changed values, so save to NVM.
+        self.save_to_nvm()
 
     def save_to_nvm(self):
         """Saves the key config variables to non-volatile storage. 
